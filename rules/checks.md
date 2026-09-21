@@ -21,9 +21,9 @@ Execute na ordem abaixo o que existir no repositório:
 1. **Testes** — `npm test` (Vitest). Cole a última linha da saída na resposta.
    - Se a tarefa tocou em procedimento tRPC de domínio, confirme que há
      (ou manteve) teste de isolamento: tenant A não enxerga dado de tenant B.
-2. **Migration** — se a tarefa alterou `prisma/schema.prisma` ou migrations:
-   rode `npx prisma migrate reset --force` local e confirme que o banco sobe
-   do zero com seed idempotente (`suporte_ti`).
+2. **Migration** — se a tarefa alterou schema: siga
+   [rules/migrations.md](migrations.md) e rode `npx prisma migrate reset --force`
+   local; confirme banco do zero com seed idempotente (`suporte_ti`).
 3. **Lint** — `npm run lint`. Deve terminar sem erro.
 4. **Build** — `npm run build`. Rode antes de qualquer push; build que quebra
    na Vercel é o feedback mais lento e mais caro deste projeto.
@@ -49,6 +49,8 @@ ADR e layout, e informe explicitamente quais checks foram pulados e por quê.
       equivalente definido no ADR)
 - [ ] Nenhum segredo em arquivo versionado nem em variável `NEXT_PUBLIC_`
 - [ ] Validação de entrada via Zod no `.input()` do procedimento
+- [ ] Variável nova segue [rules/secrets.md](secrets.md) (`.env` ·
+      `.env.example` · Vercel)
 
 ## Não faça
 

@@ -35,6 +35,8 @@ Operações consegue abandonar a planilha depois de duas semanas de uso real
 | [docs/perguntas-prd.md](docs/perguntas-prd.md) | Ambiguidades ainda não decididas pelo time |
 | [rules/restrictions.md](rules/restrictions.md) | Limites rígidos do agente |
 | [rules/checks.md](rules/checks.md) | Verificação antes de declarar tarefa pronta |
+| [rules/migrations.md](rules/migrations.md) | Procedimento para mudança de schema (Prisma) |
+| [rules/secrets.md](rules/secrets.md) | Variáveis de ambiente e chaves Supabase/Prisma |
 
 **Ordem de precedência em conflito:**
 
@@ -175,6 +177,7 @@ input do cliente.
 ### Prisma e banco
 
 - **Dono do schema:** Prisma Migrate — único caminho de migration.
+  Procedimento completo: [rules/migrations.md](rules/migrations.md).
 - **RLS, policies, triggers:** SQL bruto dentro das migrations do Prisma.
 - **RLS:** habilitado em todas as tabelas, deny by default; defesa em
   profundidade, **não** autorização primária (Prisma bypassa RLS por padrão).
@@ -254,6 +257,7 @@ Não escrever teste que só valida o mock.
 ## 11. Variáveis de ambiente
 
 Modelo em [.env.example](.env.example). Nunca versionar `.env`.
+Procedimento completo: [rules/secrets.md](rules/secrets.md).
 
 | Variável | Onde roda | Observação |
 |---|---|---|
