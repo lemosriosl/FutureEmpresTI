@@ -356,7 +356,19 @@ Ver [rules/restrictions.md](rules/restrictions.md). Os mais críticos:
 
 ---
 
-## 17. Valores do projeto
+## 17. Handoff
+
+- Handoffs ficam exclusivamente na pasta [handoff](handoff/).
+- Antes de criar ou atualizar um handoff, o agente deve perguntar ao usuário se
+  ele deseja que o handoff seja criado ou atualizado.
+- O agente só pode criar ou atualizar o arquivo depois de receber confirmação
+  explícita.
+- O modelo de handoff está em [handoff/handoff.md](handoff/handoff.md).
+- Não criar handoff automaticamente ao concluir uma tarefa.
+
+---
+
+## 18. Valores do projeto
 
 Simplicidade arquitetural · segurança · isolamento de tenant · previsibilidade
 · qualidade operacional · um repositório · um deploy.
