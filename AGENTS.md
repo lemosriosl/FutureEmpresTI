@@ -334,6 +334,42 @@ Teste vermelho = tarefa não terminada, mesmo que o código "pare certo".
 - Uma tarefa por vez; rodar checks antes de concluir
 - Propor bibliotecas ou mudanças arquiteturais — não implementar sem alinhamento
 
+### Fluxo obrigatório para toda tarefa
+
+Para toda solicitação que peça uma ação ou entrega — incluindo correções,
+features, interface, backend, testes, documentação, configuração, pesquisa ou
+manutenção — seguir esta ordem:
+
+1. Apresentar ao usuário um plano curto antes de iniciar a execução ou editar
+  arquivos. Informar escopo, áreas prováveis, critérios de aceite, validação e
+  tarefas em sequência, com detalhe proporcional ao tamanho da solicitação.
+2. Criar ou atualizar a spec como primeiro arquivo da tarefa, antes de alterar
+  os demais arquivos de entrega. Usar `spec/` como pasta padrão; reutilizar a
+  spec existente quando a solicitação for continuação do mesmo trabalho. Toda
+  spec deve registrar objetivo,
+  escopo, restrições e critérios de aceite. Incluir estados, comportamentos,
+  regras, responsividade, riscos ou validações quando forem pertinentes ao
+  tipo de tarefa. Specs de correções pequenas podem ser breves, mas não devem
+  ser omitidas.
+3. Depois da spec, decompor os critérios de aceite em tarefas e executá-las na
+  ordem planejada. A spec e o plano são preparação, não conclusão: não encerre
+  a solicitação sem executar o trabalho autorizado. Respeite a matriz de
+  autorização em [rules/operacao.md](rules/operacao.md); não peça confirmação
+  para ações classificadas como livres ou permitidas com aviso posterior.
+  Para interface, siga o Nocturne em [layout.md](layout.md). Se o pedido for
+  somente visual, não iniciar API, banco ou autenticação.
+4. Atualizar o progresso das tarefas durante a execução e validar cada critério
+  de aceite e check aplicável. Se uma aprovação, decisão ou dependência
+  realmente bloquear parte do trabalho, explique o bloqueio, não declare a
+  tarefa concluída e continue as partes independentes que estiverem autorizadas.
+5. Concluir somente quando todo o escopo aprovado estiver executado e validado;
+  relacionar entrega, critérios de aceite e resultados dos checks na resposta.
+
+Perguntas, brainstorming, pedidos de status e conversas sem uma entrega ou ação
+não exigem plano nem arquivo de spec. Se uma decisão necessária estiver
+ambígua, registre a dúvida na spec e pare para perguntar; não invente o
+comportamento. Não pule a spec por a tarefa parecer simples.
+
 ### Limites rígidos
 
 Ver [rules/restrictions.md](rules/restrictions.md). Os mais críticos:
@@ -348,11 +384,13 @@ Ver [rules/restrictions.md](rules/restrictions.md). Os mais críticos:
 
 ## 16. Comunicação
 
-- Plano breve antes de edições relevantes
+- Apresentar o plano breve antes de iniciar qualquer tarefa, conforme o fluxo
+  obrigatório da seção 15
 - Justificar decisões quando a mudança for ampla
 - Comunicar riscos (migration destrutiva, breaking change de API, etc.)
 - Respostas curtas e práticas
-- Ao concluir: o que mudou, o que foi testado, qual critério do PRD atende
+- Ao concluir: tarefas executadas, o que mudou, checks e critérios atendidos;
+  se houver bloqueio, declarar que a tarefa não foi concluída
 
 ---
 

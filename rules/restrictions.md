@@ -48,9 +48,13 @@ alwaysApply: true
 
 ## Ritmo
 
-- Não comece edições grandes sem um plano breve visível na resposta.
+- Antes de qualquer tarefa, apresente plano visível e crie ou atualize a spec
+  conforme [rules/spec-flow.md](spec-flow.md); não pare após essas etapas,
+  execute o escopo autorizado.
 - Priorize uma tarefa por vez; rode os checks antes de declarar pronto.
-- Não relate sucesso parcial. Se um check falhou, a tarefa não terminou.
+- Nunca apresente trabalho parcial como concluído. Se um check falhar, continue
+  corrigindo; se houver bloqueio real, informe que a tarefa está incompleta e
+  descreva o bloqueio.
 - Não tente consertar a mesma falha duas vezes seguidas sem mostrar
   a saída do erro.
 

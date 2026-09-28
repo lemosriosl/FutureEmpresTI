@@ -9,7 +9,9 @@ alwaysApply: true
 
 ## Quando
 
-Sempre que você for dizer "pronto", "implementado" ou "funcionando".
+Depois de executar o escopo aprovado e antes de dizer "pronto", "implementado"
+ou "funcionando". Os checks são a etapa de validação final; não substituem o
+plano, a spec nem a implementação definidos em [rules/spec-flow.md](spec-flow.md).
 
 Se o projeto ainda não tiver `package.json` ou scripts configurados,
 declare o que falta configurar em vez de inventar sucesso.
@@ -37,7 +39,12 @@ Execute na ordem abaixo o que existir no repositório:
 ## Verificação
 
 Pronto = todos os comandos aplicáveis terminaram sem falha E o git status
-não trouxe surpresa. As duas coisas, não uma.
+não trouxe surpresa, e todo o escopo aprovado e os critérios de aceite da spec
+foram executados. As três coisas, não uma.
+
+Se tarefas ou critérios permanecerem pendentes por um bloqueio real, não declare
+a solicitação pronta. Informe o bloqueio e o que já foi concluído; continue as
+partes independentes autorizadas conforme [rules/spec-flow.md](spec-flow.md).
 
 Tarefa só de documentação ou config sem scripts: valide coerência com PRD,
 ADR e layout, e informe explicitamente quais checks foram pulados e por quê.
@@ -54,7 +61,8 @@ ADR e layout, e informe explicitamente quais checks foram pulados e por quê.
 
 ## Não faça
 
-- Não relate sucesso parcial. Teste vermelho é tarefa não terminada,
-  mesmo que o código "esteja certo".
+- Nunca apresente trabalho parcial como concluído. Teste vermelho significa que
+   a tarefa não terminou: continue corrigindo; se houver bloqueio real, informe
+   que está incompleta e descreva o impedimento.
 - Não pule build ou lint "porque foi mudança pequena".
 - Não declare pronto sem mencionar qual critério do PRD foi atendido.

@@ -9,9 +9,35 @@ alwaysApply: true
 
 ## Objetivo
 
-Toda tarefa deve sair de uma especificação clara e chegar a uma mudança pequena,
-implementada e validada. O agente deve seguir este fluxo antes de declarar a
-tarefa concluída.
+Toda solicitação de ação ou entrega deve começar com um plano visível e uma
+spec, e chegar a uma mudança pequena e validada. Plano e spec são preparação,
+nunca substituem a execução. Isso vale para correções,
+features, interface, backend, testes, documentação, configuração, pesquisa e
+manutenção. Perguntas, brainstorming e pedidos de status sem uma entrega não
+exigem arquivo de spec.
+
+Para qualquer tarefa, antes de executar o trabalho ou editar arquivos:
+
+1. Apresente ao usuário um plano curto, com escopo, áreas prováveis, critérios
+  de aceite, validação prevista e tarefas em sequência. Ajuste o detalhe à
+  solicitação; não é necessário depender de um modo especial da interface.
+2. Crie ou atualize primeiro a spec em `spec/`, antes de alterar os demais
+  arquivos de entrega. Reutilize a spec existente quando for continuação do
+  mesmo trabalho.
+3. Mantenha a spec proporcional: registre objetivo, escopo, restrições e
+  critérios de aceite; acrescente estados, comportamentos, regras,
+  responsividade, riscos e validações quando pertinentes. Mesmo uma correção
+  pequena precisa de spec, ainda que breve.
+
+Se uma decisão necessária estiver ambígua, registre a dúvida na spec e pare
+para perguntar antes de inventar comportamento.
+
+Depois da spec, execute todas as tarefas aprovadas e acompanhe seu progresso.
+Não encerre a resposta apenas com plano, spec ou proposta de implementação.
+Respeite a matriz de autorização em [rules/operacao.md](operacao.md): peça
+aprovação somente para ações que exigem aprovação e continue as partes
+independentes já autorizadas. Se houver bloqueio real, informe-o sem declarar a
+tarefa pronta.
 
 ## 1. Entender a solicitação
 
@@ -35,11 +61,13 @@ tarefa concluída.
 
 ## 3. Planejar a mudança
 
-Antes de editar mais de um arquivo, informe um plano breve com:
+O plano é obrigatório antes de iniciar qualquer tarefa, não apenas antes de
+editar mais de um arquivo. Apresente-o ao usuário e inclua:
 
-- arquivos ou camadas que serão alterados;
+- arquivos ou áreas prováveis que serão alterados;
 - regra de negócio ou critério do PRD atendido;
-- teste mais direto que valida a mudança;
+- critérios de aceite e validação mais direta;
+- tarefas em sequência que cubram todo o escopo solicitado;
 - riscos, especialmente em auth, tenant, banco e migrations.
 
 Escolha a menor alteração que respeite a arquitetura:
@@ -53,6 +81,13 @@ permissão. A interface não deve ser a única barreira para uma regra.
 
 ## 4. Implementar
 
+- Execute todas as tarefas aprovadas do plano; não pare ao criar a spec ou ao
+  apresentar uma proposta quando o usuário pediu uma entrega.
+- Atualize o progresso durante a execução. Só marque a tarefa como concluída
+  quando todos os critérios de aceite aplicáveis estiverem atendidos.
+- Se uma aprovação ou decisão necessária bloquear uma etapa, peça somente essa
+  decisão, não alegue conclusão e avance no trabalho independente autorizado.
+- Siga a matriz de autorização em [rules/operacao.md](operacao.md).
 - Preserve APIs públicas e padrões locais quando não houver necessidade de
   alterá-los.
 - Valide toda entrada de procedimento com Zod.
@@ -99,6 +134,7 @@ que foram pulados e o motivo. Não declare sucesso como se tivessem passado.
 A resposta final deve informar:
 
 - o que mudou;
+- quais tarefas e critérios de aceite foram concluídos ou estão bloqueados;
 - quais checks foram executados e seus resultados;
 - qual item do PRD ou regra de negócio foi atendido;
 - riscos ou pendências conhecidas.
