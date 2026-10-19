@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum MembershipRole {
+  COLLABORATOR
+  ADMIN
+}
+
+enum EquipmentStatus {
+  AVAILABLE
+  MAINTENANCE
+  OUT_OF_SERVICE
+}
+
+model Tenant {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug        String       @unique @db.VarChar(80)
+  name        String       @db.VarChar(160)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  memberships Membership[]
+  equipment   Equipment[]
+  loans       Loan[]
+  auditLogs   AuditLog[]
+
+  @@map("tenants")
+}
+
+model Membership {
+  userId    String         @map("user_id") @db.Uuid
+  tenantId  String         @map("tenant_id") @db.Uuid
+  role      MembershipRole
+  createdAt DateTime       @default(now()) @map("created_at")
+  tenant    Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  loans     Loan[]
+  auditLogs AuditLog[]
+
+  @@id([userId, tenantId])
+  @@index([tenantId])
+  @@map("memberships")
+}
+
+model Equipment {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId      String          @map("tenant_id") @db.Uuid
+  patrimonio    String          @db.VarChar(80)
+  name          String          @db.VarChar(160)
+  category      String          @db.VarChar(80)
+  serialNumber  String?         @map("serial_number") @db.VarChar(160)
+  location      String?         @db.VarChar(160)
+  notes         String?
+  status        EquipmentStatus @default(AVAILABLE)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  tenant        Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  loans         Loan[]
+
+  @@unique([tenantId, patrimonio])
+  @@index([tenantId, status])
+  @@map("equipment")
+}
+
+model Loan {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String      @map("tenant_id") @db.Uuid
+  equipmentId String      @map("equipment_id") @db.Uuid
+  borrowerId  String      @map("borrower_id") @db.Uuid
+  borrowedAt  DateTime    @default(now()) @map("borrowed_at")
+  dueAt       DateTime    @map("due_at")
+  returnedAt  DateTime?   @map("returned_at")
+  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  equipment   Equipment   @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
+  borrower    Membership  @relation(fields: [borrowerId, tenantId], references: [userId, tenantId], onDelete: Restrict)
+
+  @@index([tenantId, borrowerId, returnedAt])
+  @@index([tenantId, equipmentId, returnedAt])
+  @@map("loans")
+}
+
+model AuditLog {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String      @map("tenant_id") @db.Uuid
+  actorId      String?     @map("actor_id") @db.Uuid
+  action       String      @db.VarChar(80)
+  resourceType String      @map("resource_type") @db.VarChar(80)
+  resourceId   String?     @map("resource_id") @db.Uuid
+  metadata     Json        @default("{}")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  tenant       Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  actor        Membership? @relation(fields: [actorId, tenantId], references: [userId, tenantId], onDelete: Restrict)
+
+  @@index([tenantId, createdAt])
+  @@map("audit_logs")
+}

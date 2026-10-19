@@ -23,14 +23,17 @@ o agente não cria commit nem faz push sem solicitação explícita.
 | Deletar ou renomear arquivo                 | pedir antes    |
 | Instalar ou atualizar dependência           | pedir antes    |
 | Criar ou alterar migration                  | pedir antes    |
-| Mexer em variável de ambiente ou configuração | proibido       |
+| Editar `.env` e `.env.example` localmente, conforme `rules/secrets.md` | avisar depois |
+| Acessar serviços remotos do projeto e consultar configuração ou envs | livre no escopo da tarefa |
+| Alterar configuração remota ou envs de serviços do projeto | livre quando necessário e dentro do escopo da tarefa |
+| Deploy ou alteração destrutiva em produção/dados remotos | pedir antes |
 
 O que cada nível significa:
 - livre — faça e siga em frente.
 - avisar depois — faça e me diga na resposta o que fez.
 - pedir antes — descreva o que pretende fazer e PARE.
-- proibido — não faça, mesmo que eu peça no meio de uma tarefa.
-  Se eu pedir, me lembre desta linha.
+- pedir antes — descreva o que pretende fazer e PARE até receber autorização.
+  Acesso remoto não autoriza expor segredos; siga `rules/secrets.md`.
 
 ## Configuração do operador
 > leitor: humano — isto não é instrução para o agente

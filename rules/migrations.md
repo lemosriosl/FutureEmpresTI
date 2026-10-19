@@ -45,23 +45,17 @@ ou SQL avulso fora de migration versionada.
 6. **Atualize o seed** ([prisma/seed.ts](../prisma/seed.ts)) se a mudança
    exigir dado inicial (ex.: tenant `suporte_ti`, memberships, equipamentos
    de exemplo). O seed deve permanecer idempotente.
-7. **Aplique localmente e valide:**
-   ```bash
-   npx prisma migrate reset --force
-   npm test
-   ```
-   Confirme que o banco sobe do zero, seed roda sem erro e testes passam.
+7. **Aplique localmente e valide:** siga a ordem canônica em
+   [rules/checks.md](checks.md). Para mudança de schema, o reset local deve
+   ocorrer antes de `npm test`; confirme que o banco sobe do zero e o seed
+   roda sem erro.
 
 ## Verificação
 
-`npx prisma migrate reset --force` numa máquina limpa aplica todas as
-migrations do zero, executa o seed idempotente e termina sem passo manual.
-
-Pronto só se:
-- `migrate reset` passou;
-- `npm test` passou (incluindo isolamento entre tenants, se a tabela for
-  de domínio);
-- `git status --short` não inclui `.env`.
+Os critérios específicos são: o banco sobe do zero, o seed idempotente
+termina sem passo manual e testes de isolamento passam para tabelas de domínio.
+A execução e a ordem dos comandos são definidas exclusivamente em
+[rules/checks.md](checks.md).
 
 ## Não faça
 
@@ -71,7 +65,12 @@ Pronto só se:
   não versiona schema pelo Supabase CLI ([ADR-001](../docs/adr/001-stack.md)).
 - Não edite migration que já foi para o repositório remoto. Escreva a
   próxima.
-- Não toque no projeto Supabase remoto. Tudo acontece no banco local.
+- Acesso de leitura ao Supabase remoto para diagnóstico é permitido no escopo
+   da tarefa. Não altere schema remoto pelo Studio, Supabase CLI ou SQL avulso.
+- Aplique migrations em produção somente pelo fluxo autorizado do projeto
+   (`prisma migrate deploy` via GitHub Actions, conforme [AGENTS.md](../AGENTS.md)).
+- Não altere dados remotos nem rode testes contra banco remoto sem solicitação
+   explícita para essa ação.
 - Não crie tabela de domínio sem `tenant_id`.
 - Não confie só em RLS: todo service e procedimento tRPC deve filtrar
   por tenant mesmo com policy ativa.

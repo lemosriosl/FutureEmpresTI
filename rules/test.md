@@ -139,24 +139,9 @@ sem duplicar tipos de entrada ou saída do AppRouter.
 
 ## Comandos de verificação
 
-Quando o scaffold existir, executar na ordem definida em `rules/checks.md`:
-
-```bash
-npm test
-npx prisma migrate reset --force   # somente se schema ou migration mudou
-npm run lint
-npm run build
-git status --short
-```
-
-Para os testes E2E, usar o comando definido no `package.json`, normalmente:
-
-```bash
-npx playwright test
-```
-
-A tarefa só pode ser declarada pronta quando os comandos aplicáveis terminarem
-sem erro e o `git status --short` mostrar apenas arquivos da tarefa.
+Execute os checks na ordem definida em [rules/checks.md](checks.md). Quando
+existir uma suíte E2E configurada, inclua o comando registrado no `package.json`
+para os fluxos afetados.
 
 ## Critérios de aprovação
 

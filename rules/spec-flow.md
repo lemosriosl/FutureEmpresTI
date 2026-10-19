@@ -118,15 +118,8 @@ Se falhar:
 
 ## 6. Verificação final
 
-Siga [rules/checks.md](checks.md) e execute todos os comandos aplicáveis:
-
-```text
-npm test
-npx prisma migrate reset --force   # se schema ou migration mudou
-npm run lint
-npm run build
-git status --short
-```
+Siga a ordem única definida em [rules/checks.md](checks.md), incluindo o reset
+de migration antes dos testes quando o schema mudar.
 
 Se scripts ou scaffold ainda não existirem, informe explicitamente os checks
 que foram pulados e o motivo. Não declare sucesso como se tivessem passado.
@@ -153,5 +146,8 @@ confirmação explícita. Depois da confirmação, use o modelo
 - Não continue buscando indefinidamente depois que o caminho local estiver
   identificado.
 - Não use mocks do Prisma para validar constraint, transação, cascade ou RLS.
-- Não altere ambiente remoto, Vercel ou Supabase.
+- Acesso e alterações em ambientes remotos seguem o escopo da tarefa e
+  [rules/operacao.md](operacao.md), [rules/secrets.md](secrets.md) e
+  [rules/migrations.md](migrations.md). Deploy e ações destrutivas em produção
+  continuam exigindo solicitação explícita.
 - Não crie commit sem solicitação explícita.

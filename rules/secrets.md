@@ -51,10 +51,12 @@ Validação no boot: Zod em `src/env.ts` (ADR-001).
 5. **Variável nova existe em TRÊS lugares ou em nenhum:**
    - `.env` (sua máquina, **nunca versionado**)
    - `.env.example` (versionado, placeholder sem valor real)
-   - painel da Vercel (Preview e Production)
+   - painel da Vercel (Preview e Production), quando esses ambientes forem
+     usados pela tarefa
 
-   Ao criar uma variável, diga na resposta em quais dos três lugares
-   você já colocou e o que falta o time fazer à mão na Vercel.
+   O agente pode consultar e atualizar variáveis locais e remotas no escopo da
+   tarefa. Ao criar ou alterar uma variável, informe em quais lugares ela foi
+   configurada, sem revelar seu valor.
 
 6. **Validação:** toda variável obrigatória entra no schema Zod de
    `src/env.ts`. Falhar no boot é preferível a `undefined` silencioso
@@ -67,12 +69,12 @@ Validação no boot: Zod em `src/env.ts` (ADR-001).
   não retorna uso indevido.
 - `.env.example` lista **todas** as chaves que o projeto usa, sem valor
   real (só placeholders).
-- `git status --short` não inclui `.env`.
-- `npm run build` passa com variáveis definidas localmente.
+- Checks gerais e estado do worktree seguem [rules/checks.md](checks.md).
 
 ## Não faça
 
-- Não escreva valor de chave em resposta, commit, log ou comentário.
+- Não escreva valor de chave em resposta, commit, log, comentário, screenshot
+   ou saída compartilhada de comando.
 - Não crie variável só no `.env`. Sem entrada em `.env.example` quebra
   o deploy e o erro só aparece no build da Vercel.
 - Não versione `.env`, `.env.local` ou qualquer arquivo com credencial.
@@ -80,6 +82,8 @@ Validação no boot: Zod em `src/env.ts` (ADR-001).
   policy atrapalha, a policy está errada — pare e avise.
 - Não use `NEXT_PUBLIC_` para segredo (ADR-001: vai para o bundle).
 - Não hardcodar URL ou chave Supabase no código — sempre via env.
+- A autorização para acessar envs remotas não permite copiar valores secretos
+   para arquivos versionados, respostas ou outros canais não seguros.
 
 ## Referências
 

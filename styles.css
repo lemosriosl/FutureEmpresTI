@@ -149,7 +149,7 @@ body:has(#login:target) .screen-app { display: none; }
   .hero-copy { transform: none; }
   .hero-copy h1 { font-size: 32px; }
   .login-panel { min-height: 560px; padding: 40px 24px; }
-  .screen-app { display: block !important; }
+  body:has(#app:target) .screen-app { display: block; }
   body:has(#app:target) .screen-login { display: none !important; }
   .sidebar { min-height: auto; padding: 20px 14px 14px; }
   .sidebar-content { padding-top: 30px; gap: 20px; }

@@ -9,8 +9,9 @@ alwaysApply: true
 
 ## Autoridade
 
-- Não escreva ADR. Se encontrar uma decisão que precisa de um, descreva
-  a decisão e as alternativas, e PARE. Quem decide é o time.
+- Registre decisões em ADR quando o time solicitar ou aprovar a decisão.
+  Se a decisão não estiver aprovada, apresente alternativas e pergunte; não
+  marque uma proposta como aceita.
 - Não contrarie o que está em [docs/adr/001-stack.md](../docs/adr/001-stack.md).
   Se precisar contrariar, pare e avise.
 - Não responda por conta própria o que o PRD deixou ambíguo. Consulte
@@ -48,23 +49,29 @@ alwaysApply: true
 
 ## Ritmo
 
-- Antes de qualquer tarefa, apresente plano visível e crie ou atualize a spec
-  conforme [rules/spec-flow.md](spec-flow.md); não pare após essas etapas,
-  execute o escopo autorizado.
-- Priorize uma tarefa por vez; rode os checks antes de declarar pronto.
-- Nunca apresente trabalho parcial como concluído. Se um check falhar, continue
-  corrigindo; se houver bloqueio real, informe que a tarefa está incompleta e
-  descreva o bloqueio.
+- Plano, spec, progresso e tratamento de bloqueios seguem
+  [rules/spec-flow.md](spec-flow.md). Checks finais seguem
+  [rules/checks.md](checks.md).
+- Nunca apresente trabalho parcial como concluído.
 - Não tente consertar a mesma falha duas vezes seguidas sem mostrar
   a saída do erro.
 
 ## Produção e ambiente remoto
 
 - Não faça push na branch de produção. Trabalhe em branch e abra PR.
-- Não rode deploy nem altere configuração da Vercel.
-- Não toque no projeto Supabase remoto: nada de SQL, alteração de schema
-  ou dado por lá. Migrations e seed rodam no ambiente local.
-- Não rode testes contra o banco remoto.
+- Não rode deploy sem solicitação explícita. Configuração remota da Vercel
+  pode ser alterada no escopo da tarefa conforme [rules/operacao.md](operacao.md)
+  e [rules/secrets.md](secrets.md).
+- Acesso aos serviços remotos usados pelo projeto (incluindo Supabase, Vercel
+  e ambientes/variáveis remotas) é permitido quando estiver no escopo da tarefa
+  e houver credenciais disponíveis. Limite a ação aos recursos necessários.
+- Alterações remotas de schema continuam sujeitas a
+  [rules/migrations.md](migrations.md): use migrations versionadas do Prisma;
+  não altere schema pelo Studio, Supabase CLI ou SQL avulso.
+- Não faça alterações destrutivas em dados de produção nem rode testes contra
+  banco remoto sem solicitação explícita para essa ação.
+- Não exponha valores de segredos em respostas, logs, saídas de comandos,
+  screenshots ou arquivos versionados. Consulte [rules/secrets.md](secrets.md).
 
 ## Precedência
 

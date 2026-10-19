@@ -94,7 +94,7 @@
 - Estilização — o design vem do Figma e precisa ser reproduzido de perto; biblioteca com visual próprio brigaria com isso.
 - Componentes — copia o componente para dentro do repositório em vez de esconder atrás de API de biblioteca, então customizar não vira luta contra a dependência.
 - Padrão de API — com front e servidor no mesmo TypeScript, o tipo do retorno chega na tela sem geração de código nem contrato escrito à mão.
-- Endpoint — não decidido.
+- Endpoint — o Route Handler do Next mantém a API no monólito, sem servidor ou origem adicional.
 - Organização — organizar por camada técnica faz cada feature nova espalhar arquivo em pastas distantes; por domínio, a feature inteira fica junta.
 - Camadas — o procedimento cuida de entrada, contexto e permissão; a regra de negócio no service é o que dá para testar sem montar contexto de tRPC.
 - Validação de entrada — sem Zod o procedimento aceita `unknown` e a validação vira `if` manual.
@@ -114,7 +114,7 @@
 - RLS, policies e triggers — o Prisma não modela RLS, policy nem trigger, então esses objetos precisam entrar na mesma linha do tempo versionada, não como script solto aplicado à mão pelo painel do Supabase.
 - Instância do Prisma — em desenvolvimento o Next recarrega o módulo a cada alteração e, sem singleton, cada recarga abre um cliente novo até esgotar a conexão.
 - Conexão de runtime — em serverless, a Vercel escala instâncias em paralelo e cada uma abrindo pool próprio esgota a conexão do projeto.
-- Conexão de migration — não decidido.
+- Conexão de migration — `directUrl` evita passar operações de migration pelo pooler de runtime e separa os ciclos de conexão.
 - Seed — seed que só funciona em banco vazio não serve para ambiente de teste que roda várias vezes.
 - Modelo de multi-tenancy — schema por tenant multiplicaria cada migration pelo número de tenants; para o escopo do projeto o isolamento lógico basta.
 - Coluna de tenant — tabela sem a coluna não tem como ser protegida por policy e vira o buraco por onde o dado vaza.
@@ -131,7 +131,7 @@
 - RLS — se uma credencial vazar ou um procedimento esquecer o middleware, a policy é a última barreira entre tenants; deny by default garante que tabela nova nasce fechada.
 - Papel do RLS — o Prisma conecta com um role dono das tabelas, que bypassa RLS por padrão; fazer as policies valerem exigiria transação com `SET LOCAL role` e `SET LOCAL request.jwt.claims` a cada request.
 - Runner de testes — com um projeto só, um runner cobre servidor e tela, com a mesma config do build.
-- Componentes nos testes — não decidido.
+- Componentes nos testes — Testing Library verifica estados e interações pelo DOM acessível, sem exigir navegador real para cada componente.
 - Integração de banco — mockar o Prisma testa o mock, não o banco; constraint, cascade, transação e policy de RLS só falham contra Postgres de verdade.
 - Teste de procedimento — testa o procedimento com contexto montado à mão, incluindo middleware de sessão e tenant, sem subir servidor HTTP.
 - E2E de interface — os fluxos que travam a operação (login, abertura de chamado, cadastro de ativo) precisam ser testados no navegador.
@@ -140,13 +140,13 @@
 - Hospedagem — o Next é o caso nativo da plataforma, então build, preview e roteamento funcionam sem adapter nem configuração extra.
 - Plano — o Hobby cobre uso pessoal não-comercial: projeto de disciplina, sem cobrança e sem ninguém sendo pago para escrever o código.
 - Região das functions — São Paulo é oferecida apenas no Pro; no Hobby as functions rodam nos EUA e cada query paga ida e volta transatlântica.
-- Região do Supabase — não decidido.
+- Região do Supabase — `sa-east-1` aproxima o banco das pessoas usuárias e reduz a latência de acesso a partir do Brasil.
 - Limite de execução — importação de planilha de ativos e relatório grande precisam ser desenhados em lotes que caibam nesse tempo.
 - Fila e agendamento — não há volume assíncrono conhecido; envio de e-mail e integração externa rodam dentro do request e seguram a resposta.
 - Configuração — falhar na subida é melhor que `undefined` virando comportamento silencioso em produção; `NEXT_PUBLIC_` vai para o bundle.
 - Log — investigar incidente em sistema multi-tenant sem poder filtrar por tenant é procurar no escuro.
-- Rastreamento de erro — não decidido.
-- CI — não decidido.
+- Rastreamento de erro — Sentry centraliza exceções e contexto para investigação sem depender apenas dos logs de execução.
+- CI — GitHub Actions executa verificações no repositório e permite aplicar migrations antes do deploy conforme a sequência definida.
 - Migration em deploy — em serverless várias instâncias sobem em paralelo e tentariam migrar ao mesmo tempo.
 - Cabeçalhos HTTP — cabeçalho de segurança ausente é achado previsível e barato de evitar; no Next não é preciso middleware para isso.
 - CSP — o cookie é `httpOnly`, mas um XSS ainda faz request autenticado em nome do usuário; a CSP é o que impede.

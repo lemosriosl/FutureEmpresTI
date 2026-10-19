@@ -370,7 +370,9 @@ Regras: nunca animar `box-shadow` de moldura; nada acima de 240ms; respeitar `@m
 
 ## 10. Notas de implementação
 
-- Estilos **inline** no template do componente; o único CSS global permitido é `@font-face`/import de fonte, `@keyframes` e resets de `body`.
+- Na aplicação Next.js, aplique os estilos com classes Tailwind (`className`) nos componentes, conforme o ADR-001. Não use atributos React `style` nem blocos `<style>` inline; a CSP permanece sem `unsafe-inline`.
+- O CSS global customizado deve ficar limitado a tokens, fonte, `@keyframes` e resets; as diretivas e regras geradas pelo Tailwind são permitidas. Estilos específicos de componentes ficam em classes Tailwind.
+- A demonstração estática em `index.html` pode usar `styles.css`; ela não define a estratégia de estilização da aplicação Next.js.
 - Fontes: `https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700`.
 - Ícones: `https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css` e `.../fill/style.css`.
 - Design system Nocturne carregado a partir de `_ds/nocturne-<id>/styles.css` + `_ds_bundle.js`; as variáveis de tema são sobrescritas no `:root` com a paleta desta especificação.
