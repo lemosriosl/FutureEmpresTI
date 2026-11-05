@@ -134,6 +134,8 @@ vencem. Cada skill deve existir em um único caminho.
 
 Skills disponíveis:
 
+- `agents/verificador-spec.md` — verifica critérios de aceite, evidências de
+  testes, checks e fora de escopo de uma spec concluída.
 - `skills/revisar-design/SKILL.md` — revisão estrutural de services, routers e
   módulos de backend.
 - `skills/graficos-operacoes/SKILL.md` — escolha e implementação de gráficos
@@ -142,6 +144,15 @@ Skills disponíveis:
   de equipamentos conforme o Nocturne.
 - `skills/principios-solid/SKILL.md` — aplicação contextual dos princípios
   SOLID em revisões de código.
+
+### Subagentes
+
+- Ficam em `agents/<nome>.md`. O frontmatter diz quando delegar; o corpo é a
+  instrução completa do subagente.
+- Subagente não herda esta conversa: ao delegar, passe tudo que o arquivo dele
+  pede como entrada.
+- Se o harness não tiver subagentes, abra uma sessão nova e comece com:
+  `Aja conforme agents/<nome>.md.` e as entradas pedidas.
 
 ---
 
@@ -218,6 +229,13 @@ em vez de assumir que o ambiente está pronto.
 ## 13. Validação antes de declarar pronto
 
 Siga a sequência única em [rules/checks.md](rules/checks.md), incluindo informar o critério de aceitação atendido.
+
+### Antes de declarar uma spec pronta
+
+- Delegue ao subagente verificador-spec (`agents/verificador-spec.md`),
+  passando o caminho da spec e o intervalo de commits.
+- A spec só é pronta com `Veredito: PRONTA`. Qualquer outro resultado volta
+  para as tarefas; quem corrige é o agente principal, nunca o verificador.
 
 ---
 
