@@ -1,3 +1,3 @@
 export function normalizar(identificador) {
-  return identificador;
+  return identificador.trim();
 }
