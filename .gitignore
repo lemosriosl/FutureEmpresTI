@@ -1,6 +1,12 @@
 node_modules/
+/.next/
+/playwright-report/
+/test-results/
+/next-env.d.ts
+/*.tsbuildinfo
 .env
 .env.*
 !.env.example
 prisma/*.db
 prisma/*.db-journal
+/.cache/pixabay/
