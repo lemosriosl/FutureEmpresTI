@@ -142,6 +142,8 @@ Skills disponíveis:
   pedidos por specs de Operações.
 - `skills/ilustracao-equipamento/SKILL.md` — ilustrações e ícones de categorias
   de equipamentos conforme o Nocturne.
+- `skills/imagens-equipamentos/SKILL.md` — pesquisa, revisão e preparação das
+  fotos do catálogo e do manifesto de créditos.
 - `skills/principios-solid/SKILL.md` — aplicação contextual dos princípios
   SOLID em revisões de código.
 
@@ -150,7 +152,7 @@ Skills disponíveis:
 - Ficam em `agents/<nome>.md`. O frontmatter diz quando delegar; o corpo é a
   instrução completa do subagente.
 - Subagente não herda esta conversa: ao delegar, passe tudo que o arquivo dele
-  pede como entrada.
+  pede como entrada. No Codex, abra com `fork_turns: "none"`.
 - Se o harness não tiver subagentes, abra uma sessão nova e comece com:
   `Aja conforme agents/<nome>.md.` e as entradas pedidas.
 
@@ -232,10 +234,12 @@ Siga a sequência única em [rules/checks.md](rules/checks.md), incluindo inform
 
 ### Antes de declarar uma spec pronta
 
-- Delegue ao subagente verificador-spec (`agents/verificador-spec.md`),
-  passando o caminho da spec e o intervalo de commits.
-- A spec só é pronta com `Veredito: PRONTA`. Qualquer outro resultado volta
-  para as tarefas; quem corrige é o agente principal, nunca o verificador.
+- Delegue em contexto limpo ao `verificador-spec`, seguindo o procedimento
+  em [agents/verificador-spec.md](agents/verificador-spec.md). Passe o caminho
+  da spec, o intervalo de commits `BASE..HEAD` e a cópia isolada da revisão
+  final para os checks.
+- A spec só é pronta com `Veredito: PRONTA` para a revisão final. Se houver
+  falhas, o agente principal corrige e pede novo parecer em contexto limpo.
 
 ---
 

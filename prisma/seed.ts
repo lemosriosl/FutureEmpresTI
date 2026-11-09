@@ -1,8 +1,15 @@
 import { PrismaClient } from '@prisma/client';
+import { entrega3Patrimonios } from './entrega3';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  const practiceEquipment = await prisma.equipment.findFirst({
+    where: { tenant: { slug: 'suporte_ti' }, patrimonio: { in: entrega3Patrimonios } },
+    select: { id: true },
+  });
+  if (practiceEquipment) throw new Error('O tenant já contém dados da Entrega 3. Use a carga da prática.');
+
   const tenant = await prisma.tenant.upsert({
     where: { slug: 'suporte_ti' },
     update: { name: 'Suporte TI' },

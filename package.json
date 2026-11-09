@@ -1,19 +1,52 @@
 {
   "name": "empres-ti",
   "private": true,
+  "type": "module",
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:db": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "playwright test",
     "db:format": "prisma format",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "db:seed:entrega3": "node --env-file-if-exists=.env --import tsx prisma/seed-entrega3.ts"
   },
   "dependencies": {
-    "@prisma/client": "6.16.2"
+    "@hookform/resolvers": "^5.9.2",
+    "@prisma/client": "6.16.2",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "^2.119.0",
+    "@tanstack/react-query": "^5.107.1",
+    "@trpc/client": "^11.25.0",
+    "@trpc/react-query": "^11.25.0",
+    "@trpc/server": "^11.25.0",
+    "next": "^16.4.5",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-hook-form": "^7.91.0",
+    "superjson": "^2.2.6",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "@tailwindcss/postcss": "^4.3.5",
+    "@testcontainers/postgresql": "12.2.1",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.5",
+    "postcss": "^8.5.23",
     "prisma": "6.16.2",
+    "tailwindcss": "^4.3.5",
     "tsx": "4.19.2",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "vitest": "^4.1.12"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
