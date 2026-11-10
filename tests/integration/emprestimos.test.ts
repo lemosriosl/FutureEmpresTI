@@ -5,7 +5,6 @@ import { afterAll, beforeAll, expect, test } from 'vitest';
 import { appRouter } from '@/server/api/root';
 import type { createContext } from '@/server/api/trpc';
 import { dueDate } from '@/lib/emprestimos';
-import { consumeLoginAttempt } from '@/server/services/login-rate-limit';
 import { linkEntrega3Professor, loadEntrega3Catalog } from '../../prisma/entrega3';
 import { testPostgres } from '../fixtures/postgres';
 
@@ -34,7 +33,6 @@ async function fixture() {
     db,
     userId,
     membership: { tenantId, role: 'COLLABORATOR' },
-    clientIp: 'local',
     requestId: randomUUID(),
   });
 
@@ -65,38 +63,6 @@ test('CA-003-02 catálogo distingue manutenção e empréstimo de disponibilidad
     .toEqual(['AVAILABLE', 'MAINTENANCE', 'BORROWED']);
   expect((await caller.equipamentos.list({ direction: 'forward', availableOnly: true })).items.map((item) => item.patrimonio))
     .toEqual(['TESTE-1']);
-});
-
-test('CA-003-07 cota por conta é atômica sob concorrência e volta após a janela', async () => {
-  const secret = randomUUID();
-  const attempts = await Promise.all(Array.from({ length: 10 }, (_, index) =>
-    consumeLoginAttempt(db, secret, `ip-${index}`, index % 2 ? 'Teste@conta.test' : 'teste@conta.test')));
-  expect(attempts.filter(Boolean)).toHaveLength(5);
-  expect(await consumeLoginAttempt(db, secret, 'ip-extra', 'teste@conta.test')).toBe(false);
-  await db.$executeRaw`
-    UPDATE public.login_rate_limits SET window_start = CURRENT_TIMESTAMP - INTERVAL '16 minutes'
-    WHERE scope = 'account'
-  `;
-  expect(await consumeLoginAttempt(db, secret, 'ip-extra', 'teste@conta.test')).toBe(true);
-});
-
-test('CA-003-07 cota por IP independe da conta e roles da API não acessam os contadores', async () => {
-  const secret = randomUUID();
-  for (let i = 0; i < 30; i++) {
-    expect(await consumeLoginAttempt(db, secret, 'ip-teste', `conta-${i}@teste.test`)).toBe(true);
-  }
-  expect(await consumeLoginAttempt(db, secret, 'ip-teste', 'nova@teste.test')).toBe(false);
-  expect(await consumeLoginAttempt(db, secret, 'outro-ip', 'nova@teste.test')).toBe(true);
-  const access = await db.$queryRaw<{ role: string; rls: boolean; canRead: boolean; canWrite: boolean }[]>`
-    SELECT role, relrowsecurity AS rls,
-      has_table_privilege(role, 'public.login_rate_limits', 'SELECT') AS "canRead",
-      has_table_privilege(role, 'public.login_rate_limits', 'INSERT,UPDATE,DELETE') AS "canWrite"
-    FROM (VALUES ('anon'), ('authenticated'), ('service_role')) AS roles(role)
-    CROSS JOIN pg_class
-    WHERE oid = 'public.login_rate_limits'::regclass
-  `;
-  expect(access).toEqual(['anon', 'authenticated', 'service_role'].map((role) =>
-    ({ role, rls: true, canRead: false, canWrite: false })));
 });
 
 test('CA-003-03 persiste o vencimento e lista apenas os próprios empréstimos em aberto', async () => {
@@ -198,7 +164,6 @@ test('CA-002-01 CA-002-02 CA-002-03 carga repetível preserva histórico, estado
     db,
     userId: adminId,
     membership: { tenantId, role: 'ADMIN' },
-    clientIp: 'local',
     requestId: randomUUID(),
   });
   const open = await caller.emprestimos.request({ patrimonio: 'TI-0001' });

@@ -13,7 +13,7 @@ async function handler(req: NextRequest) {
     endpoint: '/api/trpc',
     req,
     router: appRouter,
-    createContext: () => createContext(req),
+    createContext,
     responseMeta: () => ({ headers: new Headers({ 'Cache-Control': 'private, no-store' }) }),
     onError: ({ ctx, error, path }) => {
       if (error.code === 'INTERNAL_SERVER_ERROR') {

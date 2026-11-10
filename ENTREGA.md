@@ -144,8 +144,8 @@ mesmos registros e estados. [Resultado na spec 002](spec/002-dados-iniciais.md#r
 
 ## 8. O que falta e o que ficou de fora
 
-- O contador PostgreSQL por IP e usuário passou nos testes locais. A migration
-  ainda precisa passar pelo fluxo de publicação antes de ativar o login dessa revisão.
+- O login usa os limites do Supabase Auth. A retirada do contador local
+  elimina a dependência da migration de controle de tentativas para entrar.
 - Parecer final do verificador sobre a revisão a publicar e validação do
   fluxo de solicitação na Vercel.
 
