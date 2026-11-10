@@ -1,0 +1,50 @@
+name: Prisma em produção
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_initial:
+        description: Registrar a migration inicial após conferir o schema existente
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prisma-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Instalar dependências do lockfile
+        run: |
+          npm install --global pnpm@11.25.0
+          pnpm install --frozen-lockfile
+      - name: Aplicar e conferir migrations
+        env:
+          DATABASE_URL: ${{ secrets.DIRECT_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          BASELINE_INITIAL: ${{ inputs.baseline_initial }}
+        run: |
+          if [[ -z "$DIRECT_URL" ]]; then
+            echo 'Configure DIRECT_URL no ambiente production do GitHub Actions.' >&2
+            exit 1
+          fi
+          if [[ "$BASELINE_INITIAL" == 'true' ]]; then
+            pnpm exec prisma migrate resolve --applied 20261019000000_init
+          fi
+          pnpm exec prisma migrate deploy
+          pnpm exec prisma migrate status

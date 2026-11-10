@@ -134,6 +134,29 @@ já bloqueado não altere a cota de outra conta. Na Vercel, aceitar o IP do cabe
 limite, concorrência, recuperação e bloqueio de acesso pelas roles da API
 em PostgreSQL descartável.
 
+### Recuperação do login publicado
+
+A revisão com o limite de cinco itens está servindo na Vercel. O Auth do
+projeto respondeu, mas o banco ainda não tem `login_rate_limits` nem o
+histórico de migrations do Prisma. Conferir o schema existente contra a
+migration inicial, incluindo RLS e o trigger de auditoria. O fluxo de
+produção deve registrar a migration inicial somente se o schema conferir,
+aplicar a migration de login pelo GitHub Actions e confirmar o acesso do
+papel de runtime à tabela. Conferir `LOGIN_RATE_LIMIT_SECRET` no deploy.
+O aceite é o login voltar a processar credenciais com o limitador ativo.
+
+A comparação de 77 objetos confirmou a presença dos objetos da migration
+inicial. O trigger de auditoria apresentou diferença de formatação na
+definição e foi conferido pelo evento, função e corpo. O ensaio em PostgreSQL
+descartável registrou `20261019000000_init`, executou `migrate deploy` duas
+vezes e confirmou o acesso do runtime e o bloqueio da role da API.
+
+O workflow `Prisma em produção` usa `DIRECT_URL` do ambiente `production`
+do GitHub Actions. Na primeira execução, habilitar `baseline_initial` após
+confirmar que a migration inicial ainda está sem registro. Nas próximas,
+usar o valor padrão. Conferir o segredo do limitador no Vercel e o login na
+revisão publicada após a aplicação.
+
 ## Validação do servidor local
 
 O servidor de desenvolvimento deve responder em `/login` com a configuração
