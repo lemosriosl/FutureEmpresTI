@@ -1,25 +1,14 @@
 import { expect, test, vi } from 'vitest';
-import { consumeLoginAttempt, loginClientIp } from '@/server/services/login-rate-limit';
 import { appRouter } from './root';
 import type { createContext } from './trpc';
 
 type Context = Awaited<ReturnType<typeof createContext>>;
-
-vi.mock('@/env', async (original) => ({
-  ...await original<typeof import('@/env')>(),
-  loginRateLimitEnv: () => ({ LOGIN_RATE_LIMIT_SECRET: 'ficticio-apenas-para-teste-unitario' }),
-}));
-vi.mock('@/server/services/login-rate-limit', async (original) => ({
-  ...await original<typeof import('@/server/services/login-rate-limit')>(),
-  consumeLoginAttempt: vi.fn().mockResolvedValue(true),
-}));
 
 const anonymousContext: Context = {
   auth: null as unknown as Context['auth'],
   db: null as unknown as Context['db'],
   membership: null,
   userId: null,
-  clientIp: 'local',
   requestId: 'teste',
 };
 const caller = appRouter.createCaller(anonymousContext);
@@ -31,28 +20,19 @@ test('CA-003-01 visitante não chama procedimentos de domínio', async () => {
   await expect(caller.emprestimos.request({ patrimonio: 'TI-TESTE' })).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
 });
 
-test('CA-003-07 login bloqueado não chama o Supabase Auth', async () => {
-  vi.mocked(consumeLoginAttempt).mockResolvedValueOnce(false);
-  const signInWithPassword = vi.fn();
+test.each([
+  { status: 400, code: 'UNAUTHORIZED' },
+  { status: 429, code: 'TOO_MANY_REQUESTS' },
+])('CA-003-07 login encaminha credenciais e trata HTTP $status do Supabase Auth', async ({ status, code }) => {
+  const credentials = { email: 'conta@example.test', password: 'ficticia' };
+  const signInWithPassword = vi.fn().mockResolvedValue({ data: { user: null }, error: { status } });
   const login = appRouter.createCaller({
     ...anonymousContext,
     auth: { auth: { signInWithPassword } } as unknown as Context['auth'],
   }).auth.login;
 
-  await expect(login({ email: 'conta@example.test', password: 'ficticia' }))
-    .rejects.toMatchObject({ code: 'TOO_MANY_REQUESTS' });
-  expect(signInWithPassword).not.toHaveBeenCalled();
-});
-
-test('CA-003-07 só confia no cabeçalho de IP da Vercel em ambiente Vercel', () => {
-  const headers = new Headers({
-    'x-forwarded-for': '192.0.2.10',
-    'x-vercel-forwarded-for': '2001:0db8:0000::1',
-  });
-  expect(loginClientIp(headers, true)).toBe('2001:db8::1');
-  expect(loginClientIp(headers, false)).toBe('local');
-  headers.delete('x-vercel-forwarded-for');
-  expect(loginClientIp(headers, true)).toBe('unknown');
+  await expect(login(credentials)).rejects.toMatchObject({ code });
+  expect(signInWithPassword).toHaveBeenCalledWith(credentials);
 });
 
 test('CA-003-01 login rejeita entradas inválidas antes da autenticação', async () => {

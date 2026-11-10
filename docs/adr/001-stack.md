@@ -71,7 +71,7 @@
 | Migration em deploy | `prisma migrate deploy` em job do GitHub Actions, antes do deploy |
 | Cabeçalhos HTTP | Configurados em `next.config.js` |
 | CSP | Restritiva, sem `unsafe-inline` |
-| Rate limit | Por IP e por usuário, com contador no Postgres |
+| Limite de tentativas de login | Limites nativos do Supabase Auth |
 | Segredos | Environment variables da Vercel; nada com prefixo `NEXT_PUBLIC_` |
 | `service_role` key do Supabase | Somente em código de servidor |
 | Auditoria | Tabela append-only com ator, tenant, ação e recurso |
@@ -150,7 +150,7 @@
 - Migration em deploy — em serverless várias instâncias sobem em paralelo e tentariam migrar ao mesmo tempo.
 - Cabeçalhos HTTP — cabeçalho de segurança ausente é achado previsível e barato de evitar; no Next não é preciso middleware para isso.
 - CSP — o cookie é `httpOnly`, mas um XSS ainda faz request autenticado em nome do usuário; a CSP é o que impede.
-- Rate limit — contador em memória não funciona em serverless, porque cada instância tem o seu e o limite nunca é atingido.
+- Limite de tentativas — o Supabase Auth aplica a proteção antes de criar a sessão. O aplicativo informa ao usuário quando o provedor responde com HTTP 429.
 - Segredos — `NEXT_PUBLIC_` vai para o bundle.
 - `service_role` key do Supabase — essa chave ignora RLS; num arquivo que o bundle do cliente alcança, ela dá acesso total ao banco para qualquer visitante.
 - Auditoria — sistema de TI precisa responder quem mudou o quê; retrofitar log de auditoria depois não recupera o passado.

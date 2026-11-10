@@ -125,7 +125,6 @@ async function main() {
               EMPRES_TI_NEXT_DIST_DIR: '.next/playwright-catalogo',
               NEXT_PUBLIC_SUPABASE_URL: origin,
               NEXT_PUBLIC_SUPABASE_ANON_KEY: jwt(secret, 'anon'),
-              LOGIN_RATE_LIMIT_SECRET: randomBytes(32).toString('hex'),
               DATABASE_URL: db.getConnectionUri(),
               DIRECT_URL: db.getConnectionUri(),
               VERCEL: '0',

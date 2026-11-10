@@ -14,7 +14,6 @@ export default defineConfig({
       NEXT_PUBLIC_SUPABASE_ANON_KEY: 'e2e-sem-credenciais',
       DATABASE_URL: 'postgresql://e2e:e2e@127.0.0.1:1/indisponivel',
       DIRECT_URL: 'postgresql://e2e:e2e@127.0.0.1:1/indisponivel',
-      LOGIN_RATE_LIMIT_SECRET: 'e2e-ficticio-para-banco-indisponivel',
     },
     reuseExistingServer: false,
   },

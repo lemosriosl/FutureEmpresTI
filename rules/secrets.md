@@ -22,7 +22,6 @@ Supabase ou Prisma, ou ao escrever código que lê configuração
 | `DATABASE_URL` | Servidor | **Sim** | Prisma runtime via Supavisor (porta 6543, `pgbouncer=true`) |
 | `DIRECT_URL` | Servidor (migrate/CLI) | **Sim** | Prisma Migrate e comandos diretos (porta 5432) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Servidor | **Sim** | Bypassa RLS; só operações server-side excepcionais |
-| `LOGIN_RATE_LIMIT_SECRET` | Servidor | **Sim** | Chave do HMAC para os contadores de login. Gerar 32 bytes aleatórios em cada ambiente |
 | `SENTRY_DSN` | Servidor | **Sim** | Rastreamento de erros (quando configurado) |
 
 Referência versionada: [.env.example](../.env.example).

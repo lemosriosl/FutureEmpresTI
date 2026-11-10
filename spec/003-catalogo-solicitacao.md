@@ -89,7 +89,7 @@ devem ser compatíveis entre si e ficar registradas no lockfile.
 | CA-003-04 | O servidor aceita o quinto empréstimo disponível e rejeita o sexto, item indisponível e solicitação de conta com atraso. |
 | CA-003-05 | Em PostgreSQL real, dois pedidos do mesmo item admitem um sucesso. Dois pedidos de itens diferentes para um usuário com quatro empréstimos também admitem um sucesso. |
 | CA-003-06 | Cada procedimento de domínio tem teste de isolamento entre tenants. O cliente não fornece `tenant_id`. |
-| CA-003-07 | PostgreSQL limita tentativas por conta e IP antes do Auth, inclusive sob concorrência. Após a janela, aceita novas tentativas. Roles da API não têm acesso aos contadores. |
+| CA-003-07 | O login consulta o Supabase Auth sem depender de contador ou segredo local. Uma resposta HTTP 429 do provedor informa que é preciso aguardar. |
 
 ## Tarefas e validação
 
@@ -117,7 +117,7 @@ devem ser compatíveis entre si e ficar registradas no lockfile.
   existentes. O teste usa a imagem oficial do Supabase Auth em versão fixa
   e credenciais aleatórias descartáveis.
 
-### Controle de tentativas de login
+### Implementação anterior do controle de tentativas
 
 DDL aprovado para validação local. Criar `login_rate_limits` para contadores
 independentes por IP e por identificador de login normalizado. A consulta
@@ -136,14 +136,13 @@ em PostgreSQL descartável.
 
 ### Recuperação do login publicado
 
-A revisão com o limite de cinco itens está servindo na Vercel. O Auth do
-projeto respondeu, mas o banco ainda não tem `login_rate_limits` nem o
-histórico de migrations do Prisma. Conferir o schema existente contra a
-migration inicial, incluindo RLS e o trigger de auditoria. O fluxo de
-produção deve registrar a migration inicial somente se o schema conferir,
-aplicar a migration de login pelo GitHub Actions e confirmar o acesso do
-papel de runtime à tabela. Conferir `LOGIN_RATE_LIMIT_SECRET` no deploy.
-O aceite é o login voltar a processar credenciais com o limitador ativo.
+A revisão publicada ficou indisponível porque o login consultava o contador
+antes de chamar o Supabase Auth. O operador solicitou a remoção do limitador
+do aplicativo. Remover o serviço, a leitura de IP e a configuração HMAC
+do login. Manter a validação das credenciais pelo Supabase Auth, o vínculo
+com o tenant e o tratamento de HTTP 429 do provedor. Preservar o histórico
+de migrations publicado. Validar o login real em ambiente descartável e
+confirmar que a Vercel processa uma tentativa após o deploy.
 
 A comparação de 77 objetos confirmou a presença dos objetos da migration
 inicial. O trigger de auditoria apresentou diferença de formatação na
@@ -151,11 +150,9 @@ definição e foi conferido pelo evento, função e corpo. O ensaio em PostgreSQ
 descartável registrou `20261019000000_init`, executou `migrate deploy` duas
 vezes e confirmou o acesso do runtime e o bloqueio da role da API.
 
-O workflow `Prisma em produção` usa `DIRECT_URL` do ambiente `production`
-do GitHub Actions. Na primeira execução, habilitar `baseline_initial` após
-confirmar que a migration inicial ainda está sem registro. Nas próximas,
-usar o valor padrão. Conferir o segredo do limitador no Vercel e o login na
-revisão publicada após a aplicação.
+O ensaio e o workflow de Prisma registram o caminho avaliado para a
+recuperação anterior. A retirada do limitador elimina essa dependência do
+login.
 
 ## Validação do servidor local
 
