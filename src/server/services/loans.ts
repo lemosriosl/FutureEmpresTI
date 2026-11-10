@@ -52,7 +52,7 @@ export async function requestLoan(db: PrismaClient, access: TenantAccess, patrim
           throw new TRPCError({ code: 'PRECONDITION_FAILED', message: 'Devolva o item em atraso antes de solicitar outro.' });
         }
         if (openLoans.length >= loanLimit) {
-          throw new TRPCError({ code: 'PRECONDITION_FAILED', message: 'Você já atingiu o limite de 3 empréstimos em aberto.' });
+          throw new TRPCError({ code: 'PRECONDITION_FAILED', message: `Você já atingiu o limite de ${loanLimit} empréstimos em aberto.` });
         }
 
         const loan = await tx.loan.create({

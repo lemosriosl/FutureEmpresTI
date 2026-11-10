@@ -1,4 +1,4 @@
-export const loanLimit = 3;
+export const loanLimit = 5;
 export const loanBusinessDays = 14;
 
 const timeZone = 'America/Sao_Paulo';

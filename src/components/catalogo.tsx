@@ -46,7 +46,6 @@ export function Catalogo() {
         ))}
       </div>
       {catalog.hasNextPage && <button className="button" type="button" disabled={catalog.isFetchingNextPage} onClick={() => catalog.fetchNextPage()}>Ver mais</button>}
-      <p className="credit"><a href="https://pixabay.com/">Fotos: Pixabay</a></p>
     </>
   );
 }

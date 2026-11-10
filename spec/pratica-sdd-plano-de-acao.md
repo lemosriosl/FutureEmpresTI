@@ -94,11 +94,9 @@ conferiu que o teste permaneceu idêntico.
 - [ ] Definir caminhos estáveis no bucket público do Supabase Storage e
   preparar os arquivos localmente. O operador publica as fotos aprovadas.
 
-**Decisão.** O operador informou que o professor aprovou Pixabay em lugar do
-Pexels exigido no enunciado original. Registrar a divergência na spec 002 e
-no `ENTREGA.md`. O catálogo mantém o crédito visível **“Fotos: Pixabay”**
-com link. O Pixabay veda o uso permanente dos seus URLs de imagem como
-hospedagem do aplicativo.
+**Decisão.** O professor pediu Pixabay porque o Pexels não funcionou para
+a prática. Os créditos ficam no manifesto e o catálogo mostra os JPEGs
+selecionados do Storage. A busca da API ocorre durante a preparação.
 [API do Pixabay](https://pixabay.com/api/docs/) · [Licença](https://pixabay.com/service/license-summary/)
 
 **Ponto de atenção.** `sharp` não está previsto no ADR. Escolher na spec uma
@@ -111,7 +109,7 @@ créditos e registro da revisão visual.
 A skill e o buscador local passaram na validação de frontmatter, no check
 de sintaxe e no ensaio com resposta simulada. O ensaio verificou filtros,
 cache entre processos, expiração de 24 horas e erro 429 sem expor a chave.
-A busca real e o manifesto dependem do inventário aprovado.
+A seleção e a revisão visual das fotos constam no [manifesto](entrega3-fotos.md).
 
 O buscador local aceita `API_KEY_PIXABAY` do `.env` quando invocado com
 `node --env-file=.env`. O prompt mascarado continua disponível para buscas
@@ -134,9 +132,8 @@ avulsas. A chave fica fora do cache e o `.env.example` contém um campo vazio.
   Conferir contagens, vínculos, imagens e ausência de empréstimos para o
   professor. Submeter a spec ao verificador.
 
-**Ponto de atenção.** `TI-0004` e `TI-0007` estão em manutenção nas duas
-fontes. A situação do `TI-0010` continua **pendente**. A lista o marca em
-manutenção, enquanto o briefing o deixa disponível.
+**Decisão.** `TI-0004` e `TI-0007` ficam em manutenção. `TI-0010` fica
+disponível conforme o briefing e a planilha aprovada.
 
 **Ponto de atenção.** O seed de demonstração atribui papéis pela ordem de
 criação das contas e pode criar empréstimos para a primeira. A carga da
@@ -161,14 +158,14 @@ e evitar restaurar o estado inicial de um item em uso ao ser repetida.
   tenant. Testar os conflitos de concorrência com PostgreSQL real, rodar os
   checks e submeter a spec ao verificador.
 
-**Decisão.** O limite do PRD é **3 itens**. O operador confirmou **14 dias
-úteis** para a prática. Contam segunda a sexta, exceto feriados nacionais,
+**Decisão.** O operador pediu o limite de **5 itens** do briefing, agora no
+PRD. O prazo é de **14 dias úteis**. Contam segunda a sexta, exceto feriados nacionais,
 com vencimento no horário da retirada em São Paulo. O atraso compara o
 vencimento com o instante atual. [PRD](../docs/PRD.md) · [Modelo](modelo-banco-prd.md)
 
 **Ponto de atenção.** O banco impede dois empréstimos abertos do mesmo item.
 Também testar dois pedidos simultâneos de itens diferentes por um usuário
-com dois empréstimos abertos. Só um pedido deve passar em cada cenário.
+com quatro empréstimos abertos. Só um pedido deve passar em cada cenário.
 [Migration inicial](../prisma/migrations/20261019000000_init/migration.sql)
 
 **Evidência.** Testes de login, catálogo, manutenção, limite, atraso,
@@ -176,6 +173,22 @@ concorrência e isolamento entre tenants. Rodar os checks na ordem do
 projeto e registrar o parecer final. [Checks](../rules/checks.md)
 
 ## 5. Validar produção e fechar o `ENTREGA.md`
+
+### Fechamento autorizado
+
+O operador autorizou substituir os objetos de `TI-0011` e `TI-0012`, criar
+o commit da prática, abrir o PR, publicar a revisão e enviar a tag
+`entrega-pratica`. Verificar os hashes dos dois JPEGs novos e guardar cópias
+dos objetos atuais antes de substituir. Conferir os 12 JPEGs via GET anônimo
+e atualizar o manifesto com as fontes efetivamente publicadas.
+
+Executar os checks da revisão, criar o commit e enviar o intervalo e uma
+cópia isolada ao verificador. Publicar somente a revisão aprovada. Antes de
+promover a Vercel, confirmar a configuração de login e que a migração
+versionada passou pelo fluxo Prisma no GitHub Actions. Conferir a revisão
+servindo em produção, o login e o catálogo com leitura. A tag deve apontar
+para o commit verificado e publicado. Validar o fluxo de gravação de
+empréstimo nos serviços locais descartáveis.
 
 A revisão atual vai ao GitHub em `feat/plano-pratica-sdd`. A branch
 `feat/ensaio-verificador-sdd` acompanha a revisão para que os hashes dos

@@ -1,11 +1,23 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
+import { loginRateLimitEnv } from '@/env';
 import { loginInput } from '@/lib/inputs';
 import { publicProcedure, router } from '@/server/api/trpc';
+import { consumeLoginAttempt } from '@/server/services/login-rate-limit';
 import { resolveMembership } from '@/server/tenant';
 
 export const authRouter = router({
   login: publicProcedure.input(loginInput).mutation(async ({ ctx, input }) => {
+    let allowed: boolean;
+    try {
+      const { LOGIN_RATE_LIMIT_SECRET } = loginRateLimitEnv();
+      allowed = await consumeLoginAttempt(ctx.db, LOGIN_RATE_LIMIT_SECRET, ctx.clientIp, input.email);
+    } catch (cause) {
+      console.error(JSON.stringify({ request_id: ctx.requestId, path: 'auth.login', code: 'LOGIN_RATE_LIMIT_UNAVAILABLE' }));
+      throw new TRPCError({ code: 'SERVICE_UNAVAILABLE', message: 'O serviço de login está indisponível. Tente novamente.', cause });
+    }
+    if (!allowed) throw new TRPCError({ code: 'TOO_MANY_REQUESTS', message: 'Aguarde e tente entrar novamente.' });
+
     const { data, error } = await ctx.auth.auth.signInWithPassword(input);
     if (error?.status === 429) throw new TRPCError({ code: 'TOO_MANY_REQUESTS', message: 'Aguarde e tente entrar novamente.' });
     if (error && (!error.status || error.status >= 500)) {

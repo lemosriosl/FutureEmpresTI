@@ -1,4 +1,5 @@
 const config = {
+  distDir: process.env.EMPRES_TI_NEXT_DIST_DIR ?? '.next',
   poweredByHeader: false,
   async headers() {
     return [{

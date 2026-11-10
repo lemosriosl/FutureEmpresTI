@@ -1,10 +1,30 @@
 # Spec 003 · Login, catálogo e solicitação
 
-**Status** — Implementação e checks locais registrados no
-[ENTREGA.md](../ENTREGA.md#verificações-locais). O login local foi validado
-no Supabase com a conta do professor e o inventário oficial. As 12 fotos
-carregaram no catálogo. O parecer sobre o intervalo de commits segue
-pendente.
+**Status** — O verificador aprovou CA-003-03 a CA-003-06 em `2eff5e0`.
+Solicitou evidência de login real em CA-003-01 e de apresentação em CA-003-02.
+O operador aprovou o DDL do controle de tentativas do ADR-001 em 10/11/2026.
+
+### Revalidação do build
+
+Corrigir os erros de TypeScript dos testes de catálogo, integração e fotos
+identificados durante a conferência da prática. Manter os fluxos e a
+cobertura de teste existentes. Rodar testes, lint e build com configuração
+local, sem usar os dados da prática para gerar empréstimos de teste.
+
+### Decisão de fechamento da prática
+
+O operador pediu para seguir o briefing. O limite passa a cinco empréstimos
+em aberto por colaborador. Alinhar PRD, layout, mensagens e testes. O quinto
+pedido disponível deve passar, o sexto deve ser recusado e dois pedidos
+simultâneos com quatro empréstimos em aberto devem produzir um único sucesso.
+Preservar a transação, a checagem de atraso e o isolamento entre tenants.
+
+O catálogo apresenta as fotos preparadas e hospedadas no Storage. Os créditos
+ficam no manifesto. Completar a validação Playwright com Supabase Auth e
+PostgreSQL descartáveis. O cenário confere login, cookie `HttpOnly`, catálogo,
+filtro, detalhe, confirmação, vencimento e transição para emprestado.
+Cada suíte Playwright usa seu próprio diretório gerado pelo Next, para rodar
+enquanto o servidor de desenvolvimento está aberto.
 
 ## Escopo
 
@@ -13,7 +33,7 @@ pendente.
   equipamentos do tenant autenticado. Itens em manutenção aparecem com o
   estado correspondente e ficam fora do filtro de disponíveis.
 - A confirmação de solicitação cria um empréstimo imediatamente. O serviço
-  valida disponibilidade, limite de três em aberto e existência de atraso.
+  valida disponibilidade, limite de cinco em aberto e existência de atraso.
 - `/meus-emprestimos` lista somente os empréstimos em aberto da conta logada,
   com a data prevista de devolução.
 
@@ -54,7 +74,7 @@ instante de vencimento.
 |---|---|
 | Aplicação | `next`, `react`, `react-dom`, `@trpc/server`, `@trpc/client`, `@trpc/react-query`, `@tanstack/react-query`, `zod`, `superjson`, `react-hook-form`, `@hookform/resolvers`, `@supabase/ssr`, `@supabase/supabase-js` |
 | Build e lint | `tailwindcss`, `@tailwindcss/postcss`, `postcss`, `@types/node`, `@types/react`, `@types/react-dom`, `eslint`, `eslint-config-next` |
-| Testes | `vitest`, `@testcontainers/postgresql`, `@playwright/test` |
+| Testes | `vitest`, `@testcontainers/postgresql`, `testcontainers` na mesma versão já travada como transitiva, `@playwright/test` |
 
 O Prisma e o TypeScript já constam no projeto. As versões do novo conjunto
 devem ser compatíveis entre si e ficar registradas no lockfile.
@@ -64,11 +84,12 @@ devem ser compatíveis entre si e ficar registradas no lockfile.
 | ID | Evidência esperada |
 |---|---|
 | CA-003-01 | Uma conta convidada entra com credenciais válidas. Acesso anônimo às rotas e aos procedimentos de domínio é negado. |
-| CA-003-02 | Catálogo e detalhe exibem os 12 itens aprovados, categoria, foto, crédito e situação. Filtro de disponíveis exclui itens em manutenção e emprestados. |
+| CA-003-02 | Catálogo e detalhe exibem os itens aprovados com categoria, foto e situação. O catálogo mostra os 12 itens, sem rodapé de créditos. O filtro de disponíveis exclui itens em manutenção e emprestados. |
 | CA-003-03 | A confirmação cria um empréstimo em aberto com o vencimento de 14 dias úteis conforme o calendário aprovado. A listagem mostra apenas os próprios empréstimos em aberto. |
-| CA-003-04 | O servidor rejeita item indisponível, quarto empréstimo e solicitação de conta com atraso. |
-| CA-003-05 | Em PostgreSQL real, dois pedidos do mesmo item admitem um sucesso. Dois pedidos de itens diferentes para um usuário com dois empréstimos também admitem um sucesso. |
+| CA-003-04 | O servidor aceita o quinto empréstimo disponível e rejeita o sexto, item indisponível e solicitação de conta com atraso. |
+| CA-003-05 | Em PostgreSQL real, dois pedidos do mesmo item admitem um sucesso. Dois pedidos de itens diferentes para um usuário com quatro empréstimos também admitem um sucesso. |
 | CA-003-06 | Cada procedimento de domínio tem teste de isolamento entre tenants. O cliente não fornece `tenant_id`. |
+| CA-003-07 | PostgreSQL limita tentativas por conta e IP antes do Auth, inclusive sob concorrência. Após a janela, aceita novas tentativas. Roles da API não têm acesso aos contadores. |
 
 ## Tarefas e validação
 
@@ -81,6 +102,37 @@ devem ser compatíveis entre si e ficar registradas no lockfile.
    PostgreSQL o conflito de equipamento e o de limite por colaborador.
 4. Implementar as telas Nocturne, rodar o fluxo Playwright e os checks do
    projeto na ordem definida. Solicitar parecer do verificador.
+
+### Correções do parecer de `2eff5e0`
+
+- CA-003-01. Adicionar fluxo Playwright com Supabase Auth e PostgreSQL reais,
+  descartáveis em Docker local. Criar e confirmar uma conta fictícia, vinculá-la
+  ao tenant e entrar pelo formulário. Conferir redirecionamento, sessão
+  `HttpOnly` e acesso ao catálogo. Manter as verificações de acesso anônimo.
+- CA-003-02. No mesmo cenário, conferir os 12 cartões, categoria, patrimônio,
+  foto carregada, situação e filtro de disponíveis. Usar imagens
+  de teste locais no navegador e verificar os JPEGs publicados pelo teste
+  separado do CA-002-04.
+- Rodar o cenário isolado com `pnpm test:e2e:catalogo`, além dos checks
+  existentes. O teste usa a imagem oficial do Supabase Auth em versão fixa
+  e credenciais aleatórias descartáveis.
+
+### Controle de tentativas de login
+
+DDL aprovado para validação local. Criar `login_rate_limits` para contadores
+independentes por IP e por identificador de login normalizado. A consulta
+acontece antes de autenticar e resolver o tenant. O modelo guarda escopo,
+digest HMAC, início da janela e contador. Ativar RLS, revogar o acesso
+das roles da API e manter o acesso do papel de runtime do Prisma.
+
+Usar uma janela de 15 minutos, 5 tentativas por identificador e 30 por IP.
+Atualizar os contadores na mesma transação e rejeitar com HTTP 429 quando
+qualquer limite for atingido. Consumir a cota de IP primeiro, para que um IP
+já bloqueado não altere a cota de outra conta. Na Vercel, aceitar o IP do cabeçalho
+`x-vercel-forwarded-for` definido pela plataforma. Usar uma chave privada
+`LOGIN_RATE_LIMIT_SECRET` para o HMAC e expirar contadores antigos. Testar
+limite, concorrência, recuperação e bloqueio de acesso pelas roles da API
+em PostgreSQL descartável.
 
 ## Validação do servidor local
 
