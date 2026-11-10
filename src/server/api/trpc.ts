@@ -2,9 +2,10 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import { createRouteAuthClient } from '@/lib/supabase/server';
 import { getPrisma } from '@/server/db';
+import { loginClientIp } from '@/server/services/login-rate-limit';
 import { resolveMembership } from '@/server/tenant';
 
-export async function createContext() {
+export async function createContext(request: Request) {
   const auth = await createRouteAuthClient();
   const { data } = await auth.auth.getUser();
   const userId = data.user?.id ?? null;
@@ -14,6 +15,7 @@ export async function createContext() {
     db,
     userId,
     membership: userId ? await resolveMembership(db, userId) : null,
+    clientIp: loginClientIp(request.headers, process.env.VERCEL === '1'),
     requestId: crypto.randomUUID(),
   };
 }

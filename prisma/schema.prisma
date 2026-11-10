@@ -98,3 +98,14 @@ model AuditLog {
   @@index([tenantId, createdAt])
   @@map("audit_logs")
 }
+
+model LoginRateLimit {
+  scope       String   @db.VarChar(8)
+  keyHash     String   @map("key_hash") @db.Char(64)
+  windowStart DateTime @map("window_start") @db.Timestamptz(3)
+  attempts    Int
+
+  @@id([scope, keyHash])
+  @@index([windowStart])
+  @@map("login_rate_limits")
+}

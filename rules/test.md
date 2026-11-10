@@ -20,10 +20,10 @@ Os testes devem cobrir:
 - registro de devolução pela Operações;
 - cadastro de equipamentos pela Operações;
 - visualização dos empréstimos em aberto;
-- limite de 3 empréstimos ativos por pessoa;
-- prazo padrão de 14 dias;
+- limite de 5 empréstimos ativos por pessoa;
+- prazo padrão de 14 dias úteis;
 - bloqueio de nova solicitação quando existe atraso;
-- ocultação de equipamentos em manutenção;
+- exclusão de equipamentos em manutenção no filtro de disponíveis;
 - isolamento entre tenants;
 - controle de permissões por papel.
 
@@ -43,9 +43,9 @@ Casos mínimos:
 - cria empréstimo para equipamento disponível;
 - rejeita empréstimo para equipamento emprestado;
 - rejeita empréstimo para equipamento em manutenção;
-- rejeita o quarto empréstimo ativo;
+- aceita o quinto empréstimo ativo e rejeita o sexto;
 - rejeita solicitação de usuário com item atrasado;
-- calcula a devolução prevista em 14 dias;
+- calcula a devolução prevista em 14 dias úteis;
 - registra devolução e libera o equipamento;
 - não permite devolver empréstimo de outro usuário;
 - permite que Operações registre a devolução no balcão;
@@ -76,7 +76,7 @@ interface:
 
 - catálogo mostra Disponível, Emprestado e Manutenção corretamente;
 - botão de solicitação fica indisponível para item não disponível;
-- contador de empréstimos mostra a situação até 3 itens;
+- contador de empréstimos mostra a situação até 5 itens;
 - atraso exibe bloqueio de nova solicitação;
 - formulário de equipamento mostra erros de validação;
 - colaborador vê apenas os próprios empréstimos;
@@ -97,7 +97,7 @@ Fluxos críticos:
 2. colaborador consulta o próprio empréstimo e devolve o item;
 3. Operações cadastra um equipamento disponível;
 4. Operações visualiza empréstimos em aberto e registra uma devolução;
-5. usuário com três empréstimos não consegue solicitar o quarto;
+5. usuário com cinco empréstimos não consegue solicitar o sexto;
 6. usuário com item atrasado não consegue solicitar outro;
 7. equipamento em manutenção não aparece como disponível;
 8. colaborador não acessa a tela de Operações;

@@ -19,8 +19,8 @@ distintos. A publicação usa o bucket `catalogo-equipamentos` e a chave
 | `TI-0008` | `TI-0008.jpg` | [643728](https://pixabay.com/photos/hdmi-cable-connection-643728/) | PIX1861 | `equipamentos/490b0287-628e-4241-bd1d-30ddb194af4c.jpg` |
 | `TI-0009` | `TI-0009.jpg` | [4498745](https://pixabay.com/photos/cable-wire-technology-plug-4498745/) | tomekwalecki | `equipamentos/98421d3c-cbb6-46b3-851b-9c09d30c4c1e.jpg` |
 | `TI-0010` | `TI-0010.jpg` | [494647](https://pixabay.com/photos/network-cable-cable-patch-494647/) | blickpixel | `equipamentos/daa0d092-ee7c-4838-b6e7-1bc58bdacc81.jpg` |
-| `TI-0011` | `TI-0011.jpg` | [796227](https://pixabay.com/photos/web-cam-internet-video-796227/) | Vitamin | `equipamentos/987c9d65-33c5-4a70-923d-bdf559b7fb37.jpg` |
-| `TI-0012` | `TI-0012.jpg` | [551287](https://pixabay.com/photos/digital-camera-camera-compact-back-551287/) | Humusak | `equipamentos/66d755bf-5366-476b-899f-82f5bfd3bd51.jpg` |
+| `TI-0011` | `TI-0011.jpg` | [3371742](https://pixabay.com/photos/webcam-close-up-technology-camera-3371742/) | 8891965 | `equipamentos/987c9d65-33c5-4a70-923d-bdf559b7fb37.jpg` |
+| `TI-0012` | `TI-0012.jpg` | [8670926](https://pixabay.com/photos/camera-photography-photographer-8670926/) | MrTozzo | `equipamentos/66d755bf-5366-476b-899f-82f5bfd3bd51.jpg` |
 
 Os 12 objetos foram baixados do Storage sem autenticação e conferidos
 com os arquivos revisados. O catálogo carregou as 12 fotos.
@@ -31,7 +31,15 @@ com os arquivos revisados. O catálogo carregou as 12 fotos.
 - As candidatas `2202226`, `3545828`, `5050543` e `1868496` foram descartadas por
   exibirem marcas ou textos em destaque. A candidata `1219748` exibia uma
   resolução de webcam diferente da descrição do item.
-- O recorte do monitor `1140699` deixa o logo fora da foto. A webcam `796227`
-  e a câmera `551287` exibem inscrições genéricas na lente e nos controles.
+- O recorte do monitor `1140699` deixa o logo fora da foto.
 - As fotos mostram o tipo de equipamento. A planilha e o catálogo informam
   as especificações dos itens disponíveis para empréstimo.
+
+## Substituições publicadas em 10/11/2026
+
+A revisão confirmou texto legível em `796227` e `551287`. As duas
+substituições foram recortadas, exportadas em 800×600 e publicadas nas
+mesmas chaves. Os hashes SHA-256 foram confirmados por GET anônimo.
+
+- `TI-0011` · `b55389aa2e992222c5d7ae7ea960cd32d0870d7491166951f6b918c7619c7e1a`
+- `TI-0012` · `d43327cd3d6fd15016e3ce76d84f1108c43a1359555eadb47bdaeb741e34cab0`

@@ -30,7 +30,7 @@ export function EquipmentDetail({ patrimonio }: { patrimonio: string }) {
   let reason: string | undefined;
   if (item.status !== 'AVAILABLE') reason = 'Este equipamento está indisponível.';
   else if (overdue) reason = 'Devolva o item em atraso antes de solicitar outro.';
-  else if (count !== undefined && count >= loanLimit) reason = 'Você já atingiu o limite de 3 empréstimos em aberto.';
+  else if (count !== undefined && count >= loanLimit) reason = `Você já atingiu o limite de ${loanLimit} empréstimos em aberto.`;
 
   return (
     <>
@@ -59,7 +59,7 @@ export function EquipmentDetail({ patrimonio }: { patrimonio: string }) {
         <h2 id="confirm-heading">Confirmar empréstimo</h2>
         <p>{item.name}</p>
         <p>Previsão de devolução: {formatDueDate(dueDate(new Date()))}</p>
-        {count === loanLimit - 1 && <p className="muted">Este será seu terceiro item em aberto.</p>}
+        {count === loanLimit - 1 && <p className="muted">Este pedido atingirá o limite de {loanLimit} empréstimos em aberto.</p>}
         {request.error && <p role="alert" className="danger">{request.error.message}</p>}
         <div className="actions">
           <button type="button" className="button" disabled={request.isPending} onClick={() => dialog.current?.close()}>Fechar</button>

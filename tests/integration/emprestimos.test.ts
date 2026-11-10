@@ -1,31 +1,20 @@
 import { randomUUID } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
 import { PrismaClient } from '@prisma/client';
-import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
+import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { afterAll, beforeAll, expect, test } from 'vitest';
 import { appRouter } from '@/server/api/root';
 import type { createContext } from '@/server/api/trpc';
 import { dueDate } from '@/lib/emprestimos';
+import { consumeLoginAttempt } from '@/server/services/login-rate-limit';
 import { linkEntrega3Professor, loadEntrega3Catalog } from '../../prisma/entrega3';
+import { testPostgres } from '../fixtures/postgres';
 
 type Context = Awaited<ReturnType<typeof createContext>>;
 let container: StartedPostgreSqlContainer | undefined;
 let db: PrismaClient;
 
 beforeAll(async () => {
-  const migration = await readFile(new URL('../../prisma/migrations/20261019000000_init/migration.sql', import.meta.url), 'utf8');
-  const setup = [
-    'CREATE ROLE authenticated;',
-    'CREATE SCHEMA auth;',
-    'CREATE TABLE auth.users (id uuid PRIMARY KEY, email text NOT NULL, email_confirmed_at timestamptz);',
-    migration,
-    'GRANT USAGE ON SCHEMA public TO authenticated;',
-    'GRANT SELECT ON tenants, memberships, equipment, loans, audit_logs TO authenticated;',
-    'GRANT INSERT ON loans, audit_logs TO authenticated;',
-  ].join('\n');
-  container = await new PostgreSqlContainer('postgres:16-alpine')
-    .withCopyContentToContainer([{ content: setup, target: '/docker-entrypoint-initdb.d/01-empres-ti.sql' }])
-    .start();
+  container = await (await testPostgres()).start();
   db = new PrismaClient({ datasourceUrl: container.getConnectionUri() });
 });
 
@@ -45,6 +34,7 @@ async function fixture() {
     db,
     userId,
     membership: { tenantId, role: 'COLLABORATOR' },
+    clientIp: 'local',
     requestId: randomUUID(),
   });
 
@@ -77,6 +67,38 @@ test('CA-003-02 catálogo distingue manutenção e empréstimo de disponibilidad
     .toEqual(['TESTE-1']);
 });
 
+test('CA-003-07 cota por conta é atômica sob concorrência e volta após a janela', async () => {
+  const secret = randomUUID();
+  const attempts = await Promise.all(Array.from({ length: 10 }, (_, index) =>
+    consumeLoginAttempt(db, secret, `ip-${index}`, index % 2 ? 'Teste@conta.test' : 'teste@conta.test')));
+  expect(attempts.filter(Boolean)).toHaveLength(5);
+  expect(await consumeLoginAttempt(db, secret, 'ip-extra', 'teste@conta.test')).toBe(false);
+  await db.$executeRaw`
+    UPDATE public.login_rate_limits SET window_start = CURRENT_TIMESTAMP - INTERVAL '16 minutes'
+    WHERE scope = 'account'
+  `;
+  expect(await consumeLoginAttempt(db, secret, 'ip-extra', 'teste@conta.test')).toBe(true);
+});
+
+test('CA-003-07 cota por IP independe da conta e roles da API não acessam os contadores', async () => {
+  const secret = randomUUID();
+  for (let i = 0; i < 30; i++) {
+    expect(await consumeLoginAttempt(db, secret, 'ip-teste', `conta-${i}@teste.test`)).toBe(true);
+  }
+  expect(await consumeLoginAttempt(db, secret, 'ip-teste', 'nova@teste.test')).toBe(false);
+  expect(await consumeLoginAttempt(db, secret, 'outro-ip', 'nova@teste.test')).toBe(true);
+  const access = await db.$queryRaw<{ role: string; rls: boolean; canRead: boolean; canWrite: boolean }[]>`
+    SELECT role, relrowsecurity AS rls,
+      has_table_privilege(role, 'public.login_rate_limits', 'SELECT') AS "canRead",
+      has_table_privilege(role, 'public.login_rate_limits', 'INSERT,UPDATE,DELETE') AS "canWrite"
+    FROM (VALUES ('anon'), ('authenticated'), ('service_role')) AS roles(role)
+    CROSS JOIN pg_class
+    WHERE oid = 'public.login_rate_limits'::regclass
+  `;
+  expect(access).toEqual(['anon', 'authenticated', 'service_role'].map((role) =>
+    ({ role, rls: true, canRead: false, canWrite: false })));
+});
+
 test('CA-003-03 persiste o vencimento e lista apenas os próprios empréstimos em aberto', async () => {
   const { tenantId, caller, equipment, loan } = await fixture();
   await loan('DEVOLVIDO', false, true);
@@ -94,15 +116,15 @@ test('CA-003-03 persiste o vencimento e lista apenas os próprios empréstimos e
   expect(await db.auditLog.count({ where: { tenantId, resourceId: result.id } })).toBe(1);
 });
 
-test('CA-003-04 manutenção, atraso e quarto empréstimo são rejeitados no servidor', async () => {
+test('CA-003-04 o quinto empréstimo passa e manutenção, atraso e sexto empréstimo são rejeitados', async () => {
   const { caller, equipment, loan } = await fixture();
   await equipment('LIVRE');
+  await equipment('OUTRO-LIVRE');
   await equipment('MANUTENCAO', 'MAINTENANCE');
   await expect(caller.emprestimos.request({ patrimonio: 'MANUTENCAO' })).rejects.toMatchObject({ code: 'CONFLICT' });
-  await loan('L1');
-  await loan('L2');
-  await loan('L3');
-  await expect(caller.emprestimos.request({ patrimonio: 'LIVRE' })).rejects.toThrow(/limite/);
+  for (const patrimonio of ['L1', 'L2', 'L3', 'L4']) await loan(patrimonio);
+  await expect(caller.emprestimos.request({ patrimonio: 'LIVRE' })).resolves.toMatchObject({ id: expect.any(String) });
+  await expect(caller.emprestimos.request({ patrimonio: 'OUTRO-LIVRE' })).rejects.toThrow(/limite de 5/);
 
   const other = await fixture();
   await other.equipment('LIVRE');
@@ -123,16 +145,15 @@ test('CA-003-05 um único pedido concorrente para o mesmo equipamento passa', as
 
 test('CA-003-05 dois itens concorrentes não ultrapassam o limite por pessoa', async () => {
   const { caller, equipment, loan, tenantId } = await fixture();
-  await loan('L1');
-  await loan('L2');
-  await equipment('L3');
-  await equipment('L4');
+  for (const patrimonio of ['L1', 'L2', 'L3', 'L4']) await loan(patrimonio);
+  await equipment('L5');
+  await equipment('L6');
   const outcomes = await Promise.allSettled([
-    caller.emprestimos.request({ patrimonio: 'L3' }),
-    caller.emprestimos.request({ patrimonio: 'L4' }),
+    caller.emprestimos.request({ patrimonio: 'L5' }),
+    caller.emprestimos.request({ patrimonio: 'L6' }),
   ]);
   expect(outcomes.filter(({ status }) => status === 'fulfilled')).toHaveLength(1);
-  expect(await db.loan.count({ where: { tenantId, returnedAt: null } })).toBe(3);
+  expect(await db.loan.count({ where: { tenantId, returnedAt: null } })).toBe(5);
 });
 
 test('CA-003-06 cada procedimento de domínio respeita o tenant da sessão', async () => {
@@ -177,6 +198,7 @@ test('CA-002-01 CA-002-02 CA-002-03 carga repetível preserva histórico, estado
     db,
     userId: adminId,
     membership: { tenantId, role: 'ADMIN' },
+    clientIp: 'local',
     requestId: randomUUID(),
   });
   const open = await caller.emprestimos.request({ patrimonio: 'TI-0001' });

@@ -46,8 +46,9 @@ para o operador publicar no bucket definido na spec.
    unicidade dos patrimônios e dos IDs das fotos.
 3. Entregue os JPEGs e o manifesto ao operador. O bucket público contém
    apenas as fotos licenciadas. A publicação e a verificação de acesso
-   anônimo acontecem no ambiente aprovado. O catálogo usa URLs do Storage
-   e exibe o crédito **Fotos: Pixabay** com link para o Pixabay.
+   anônimo acontecem no ambiente aprovado. O catálogo usa URLs do Storage e
+   os créditos das fotos selecionadas ficam no manifesto. Mostre a origem
+   sempre que apresentar os resultados da busca da API durante a seleção.
 
 Use a chave da API somente para a busca local. Mantenha chave, cache e fotos
 rejeitadas fora do Git. Os endereços temporários retornados pela API servem

@@ -10,10 +10,18 @@ const databaseSchema = z.object({
   DIRECT_URL: z.url({ protocol: /^postgres(?:ql)?$/ }),
 });
 
+const loginRateLimitSchema = z.object({
+  LOGIN_RATE_LIMIT_SECRET: z.string().min(32),
+});
+
 export function authEnv() {
   return publicSchema.parse(process.env);
 }
 
 export function validateDatabaseEnv() {
   databaseSchema.parse(process.env);
+}
+
+export function loginRateLimitEnv() {
+  return loginRateLimitSchema.parse(process.env);
 }

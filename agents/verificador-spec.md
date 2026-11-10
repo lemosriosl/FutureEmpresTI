@@ -50,6 +50,10 @@ confirmadas, registre o check como bloqueado e não o execute.
 3. Rode os checks aplicáveis na ordem de `rules/checks.md`. Para reset ou
    migration exigidos, verifique a evidência local do agente principal. No
    ensaio, rode só o teste autocontido informado.
+   Se a spec exigir um check separado de leitura pública no ambiente publicado,
+   confira o teste que cita o CA e a saída coletada pelo operador, com data,
+   ambiente e revisão do teste. Não acesse esse ambiente na sessão de
+   verificação. Marque o check como bloqueado quando faltar essa evidência.
 4. Registre se cada check passou, falhou, está bloqueado ou não se aplica.
    Justifique checks bloqueados ou não aplicáveis.
 5. Confira se o diff inclui mudanças fora do escopo da spec.
