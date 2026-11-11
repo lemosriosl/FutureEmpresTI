@@ -218,3 +218,20 @@ renovação, e-mail e importação de planilha.
 
 **Evidência.** Links da entrega, tag no commit revisado, checklist de
 produção preenchido e evidências rastreáveis no `ENTREGA.md`.
+
+### Revisão do documento de entrega
+
+Revisar o `ENTREGA.md` conforme a seção 06 do enunciado e a orientação
+dada em aula. Descrever a origem efetiva das fotos, o manifesto e a
+validação dos JPEGs. A revisão é documental.
+
+- CA-DOC-01 — O documento registra Pixabay como a fonte adotada na prática
+  e aponta para a skill, o manifesto e o teste de fotos.
+- CA-DOC-02 — As decisões e as correções do parecer apontam para as specs,
+  os commits e os testes correspondentes.
+- CA-DOC-03 — O documento distingue as evidências históricas, a revisão
+  local e as confirmações que ainda faltam para a entrega.
+
+Conferir as referências com o Git e as specs, revisar o diff e executar
+os checks aplicáveis de `rules/checks.md`. O PRD, itens 1 a 3, delimita os
+fluxos avaliados.
